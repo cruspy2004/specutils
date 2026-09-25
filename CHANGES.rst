@@ -14,6 +14,9 @@ New Features
 Bug Fixes
 ^^^^^^^^^
 
+- Fix ``equivalent_width`` giving incorrect results when the continuum is
+  not constant across the spectral region. [#1350]
+
 Other Changes and Additions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -173,22 +173,12 @@ def _compute_equivalent_width(spectrum, continuum=1, regions=None,
     # Calculate the continuum flux value
     continuum = u.Quantity(continuum, unit=spectrum.flux.unit)
 
-    # If continuum is provided as a single scalar/quantity value, create an
-    # array the same size as the processed spectrum. Otherwise, assume that the
-    # continuum was provided as an array and use as-is.
-    if continuum.size == 1:
-        continuum = continuum * np.ones(spectrum.flux.size)
-
-    cont_spec = Spectrum(flux=continuum,
-                           spectral_axis=spectrum.spectral_axis)
-    cont_flux = _compute_line_flux(cont_spec,
-                                   mask_interpolation=mask_interpolation)
     line_flux = _compute_line_flux(spectrum,
                                    mask_interpolation=mask_interpolation)
 
     # Calculate equivalent width
     dx = np.abs(np.diff(spectrum.spectral_axis.bin_edges))
-    ew = np.sum((1 - line_flux / cont_flux) * dx)
+    ew = np.sum((1 - spectrum.flux / continuum) * dx)
 
     # NOTE: uncertainty gets lost during unit translation, so we have to convert first
     ew = ew.to(spectrum.spectral_axis.unit)

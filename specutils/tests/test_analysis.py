@@ -205,6 +205,26 @@ def test_equivalent_width_absorption():
     assert quantity_allclose(result, expected, atol=0.005*u.GHz)
 
 
+def test_equivalent_width_sloped_continuum():
+
+    # The line is kept away from the middle of the spectrum so that the error
+    # from treating a sloped continuum as constant does not cancel out (#1302).
+    wavelengths = np.linspace(6000, 7000, 1001) * u.AA
+    amplitude = 0.5
+    stddev = 10*u.AA
+    g = models.Gaussian1D(amplitude=amplitude, mean=6150*u.AA, stddev=stddev)
+    continuum = np.linspace(1, 3, wavelengths.size) * u.Jy
+    flux = continuum * (1 - g(wavelengths))
+
+    spectrum = Spectrum(spectral_axis=wavelengths, flux=flux)
+
+    result = equivalent_width(spectrum, continuum=continuum)
+
+    expected = amplitude*np.sqrt(2*np.pi) * stddev
+
+    assert quantity_allclose(result, expected, rtol=1e-3)
+
+
 @pytest.mark.parametrize('bin_specification', ["centers", "edges"])
 def test_equivalent_width_bin_edges(bin_specification):
     """
